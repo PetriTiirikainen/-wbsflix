@@ -46,7 +46,10 @@ def recommend_movies(userId, ratings, movies, links, n=10):
             genre_recommendations.append(genre_df.sample(1))
 
     # Concatenate the genre recommendations
-    genre_recommendations_df = pd.concat(genre_recommendations)
+    if genre_recommendations:
+        genre_recommendations_df = pd.concat(genre_recommendations)
+    else:
+        genre_recommendations_df = pd.DataFrame()
 
     # If the number of genre recommendations is less than n, fill the rest with random recommendations
     if len(genre_recommendations_df) < n:

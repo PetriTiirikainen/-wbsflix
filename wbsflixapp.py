@@ -51,7 +51,12 @@ movie_name, user_id, top_n = user_input_features()
 chatbot_input = st.text_input('Chatbot Input', help='Enter your user ID or a movie or a genre you liked')
 
 if chatbot_input:
-    if chatbot_input.isdigit():
+    if chatbot_input.lower() == "banana!":
+        # Easter egg for 'banana!'
+        st.write("Maxguv minion! aca nama tadda ka kaylay cama to:")
+        minion_movies = movies[movies['title'].str.lower().str.contains('despicable me') | movies['title'].str.lower().str.contains('minions')]
+        display_posters(minion_movies)
+    elif chatbot_input.isdigit():
         # If the user input is a number, assume it's a user ID and recommend a movie
         user_id = int(chatbot_input)
         recommendations = recommend_movies(user_id, ratings, movies, links, 1)

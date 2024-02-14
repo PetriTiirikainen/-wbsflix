@@ -53,9 +53,13 @@ chatbot_input = st.text_input('Chatbot Input', help='Enter your user ID or a mov
 if chatbot_input:
     if chatbot_input.lower() == "banana!":
         # Easter egg for 'banana!'
-        st.write("Maxguv minion! aca nama tadda ka kaylay cama to:")
+        st.write("Maxguv minion! aca nama tadda ka kaylay cama to: (Welcome minion! This is all I have of you:)")
         minion_movies = movies[movies['title'].str.lower().str.contains('despicable me') | movies['title'].str.lower().str.contains('minions')]
-        display_posters(minion_movies)
+        minion_movies = minion_movies.merge(links, on='movieId')  # Merge with links DataFrame
+        if not minion_movies.empty:
+            display_posters(minion_movies)
+        else:
+            st.write("Sorry, no Minions movies found.")
     elif chatbot_input.isdigit():
         # If the user input is a number, assume it's a user ID and recommend a movie
         user_id = int(chatbot_input)

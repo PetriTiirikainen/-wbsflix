@@ -1,0 +1,6 @@
+streamlit
+pandas
+python-dotenv
+requests
+scikit-learn
+scikit-surprise

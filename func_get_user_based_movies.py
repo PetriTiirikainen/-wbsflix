@@ -45,11 +45,10 @@ def recommend_movies(userId, ratings, movies, links, n=10):
         if not genre_df.empty:
             genre_recommendations.append(genre_df.sample(1))
 
-    # Concatenate the genre recommendations
-    if genre_recommendations:
+    if genre_recommendations and any(not df.empty for df in genre_recommendations):
         genre_recommendations_df = pd.concat(genre_recommendations)
     else:
-        genre_recommendations_df = pd.DataFrame()
+        genre_recommendations_df = pd.DataFrame(columns=final_df.columns)
 
     # If the number of genre recommendations is less than n, fill the rest with random recommendations
     if len(genre_recommendations_df) < n:

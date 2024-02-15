@@ -89,7 +89,7 @@ if chatbot_input:
     elif any(chatbot_input.lower() in movie.lower() for movie in movies['title'].values):
         # If the user input is a substring of a movie title, recommend a similar movie
         movie_title = next(movie for movie in movies['title'].values if chatbot_input.lower() in movie.lower())
-        recommendations = get_movie_recommendations(movie_title, 1, movies, tags, links)
+        recommendations = get_movie_recommendations(movie_title, 1, movies, links)
         st.write(f"If you liked {movie_title}, you might also like: {recommendations['title'].values[0]}")
         display_posters(recommendations)
 else:
@@ -129,7 +129,7 @@ random_high_rated_movie_title = movies[movies['movieId'] == random_high_rated_mo
 
 # Display item-based recommendations
 st.subheader(f"Because you liked '{random_high_rated_movie_title}', you might also like...")
-item_recommendations = get_movie_recommendations(random_high_rated_movie_title, top_n, movies, tags, links)  # Add links as an argument
+item_recommendations = get_movie_recommendations(random_high_rated_movie_title, top_n, movies, links)  # Add links as an argument
 display_posters(item_recommendations)
 
 # Display user-based recommendations

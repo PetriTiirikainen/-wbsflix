@@ -1,28 +1,24 @@
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 
-def get_movie_recommendations(title, n, movies, tags, links):
-    # Merge movies and tags dataframes
-    merged_df = pd.merge(movies, tags, on='movieId', how='left')
+def get_movie_recommendations(title, n, movies, links):
+    # Merge movies DataFrame with the links DataFrame
+    merged_df = pd.merge(movies, links, on='movieId', how='left')
 
-    # Merge the merged_df DataFrame with the links DataFrame
-    merged_df = pd.merge(merged_df, links, on='movieId', how='left')
+    # Split the genres into a list of genres
+    merged_df['genres'] = merged_df['genres'].apply(lambda x: x.split('|'))
 
-    # Fill NA values in tag with an empty string
-    merged_df['tag'] = merged_df['tag'].fillna('')
+    # Create MultiLabelBinarizer object
+    mlb = MultiLabelBinarizer()
 
-    # Create a new column metadata that combines genres and tag
-    merged_df['metadata'] = merged_df[['genres', 'tag']].apply(lambda x: ' '.join(x), axis = 1)
-
-    # Create a TF-IDF vectorizer
-    tfidf = TfidfVectorizer(stop_words='english')
-
-    # Construct the required TF-IDF matrix by fitting and transforming the data
-    tfidf_matrix = tfidf.fit_transform(merged_df['metadata'])
+    # One-hot encode the genres
+    genres_df = pd.DataFrame(mlb.fit_transform(merged_df.pop('genres')),
+                             columns=mlb.classes_,
+                             index=merged_df.index)
 
     # Compute the cosine similarity matrix
-    cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
+    cosine_sim = cosine_similarity(genres_df, genres_df)
 
     # Convert the title to lowercase
     title = title.lower()
@@ -51,21 +47,12 @@ def get_movie_recommendations(title, n, movies, tags, links):
         movie_indices = [i[0] for i in sim_scores]
 
         # Get the top n most similar movies along with their tmdbId
-        recommendations = merged_df[['title', 'tmdbId', 'genres']].iloc[movie_indices]
+        recommendations = merged_df[['title', 'tmdbId']].iloc[movie_indices]
 
         # Drop duplicates based on 'title'
         recommendations = recommendations.drop_duplicates(subset='title')
 
-        # Get the genres of the input movie
-        input_genres = matching_movies['genres'].iloc[0].split('|')
-
-        # Filter the recommendations to include at least two movies from the same genre as the input movie
-        genre_recommendations = recommendations[recommendations['genres'].apply(lambda x: any(genre in x for genre in input_genres))]
-
-        if len(genre_recommendations) >= 2:
-            return genre_recommendations
-        else:
-            return recommendations
+        return recommendations
     else:
         # Return an empty DataFrame if no matching movie is found
         return pd.DataFrame()

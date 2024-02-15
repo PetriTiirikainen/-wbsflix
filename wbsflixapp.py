@@ -16,6 +16,8 @@ movies = pd.read_csv('movies.csv')
 ratings = pd.read_csv('ratings.csv')
 tags = pd.read_csv('tags.csv')
 
+st.set_page_config(layout="wide")
+
 # Add a logo to the top left corner
 st.markdown(
         """

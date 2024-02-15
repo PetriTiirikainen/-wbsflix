@@ -24,7 +24,7 @@ st.markdown(
         <style>
         .logo-text {
             font-size:80px !important;
-            color: mediumseagreen !important;
+            color: #E50914 !important;
             position: absolute;
             top: 2%;
             left: 2%;

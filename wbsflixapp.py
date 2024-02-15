@@ -43,10 +43,10 @@ st.markdown("<br>", unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
 # User inputs
-movie_name = st.text_input('Search for a movie', key='movie_name')
-user_id = st.text_input('Enter your user ID please', '42', key='user_id')
+movie_name = st.text_input('Search for a movie', help='Type in a movie title or a part of a movie title', key='movie_name')
+user_id = st.text_input('Enter your user ID please', help='Type in a User Id number between 1 and 610' '42', key='user_id')
 user_id = int(user_id)  # Convert the user ID to an integer
-top_n = 10  # Define the number of recommendations to display
+top_n = 15  # Define the number of recommendations to display
 
 # Chatbot's header
 st.header("Movie Recommendation Chatbot")
@@ -55,17 +55,17 @@ st.header("Movie Recommendation Chatbot")
 st.write("Hello, how can I help you today? Try entering a movie or a genre you liked or your user ID.")
 
 # Use st.text_input for chatbot input
-chatbot_input = st.text_input('Chatbot Input', help='Enter your user ID or a movie or a genre you liked', key='chatbot_input')
+chatbot_input = st.text_input('Chatbot Input', help='You can type in a User Id number between 1 and 610, a movie title or a movie genre like action, sci-fi, thriller, to get a recommendation', key='chatbot_input')
 
 # Define the variable "genre" before using it
 genre = None  
 
 if chatbot_input:
     if chatbot_input.lower() == "banana!":
-            # Easter egg for 'banana!'
+            # Easter egg for 'banana!' input
             st.write("Maxguv minion! Aca nama tadda ka kaylay cama to: (Translation: Welcome minion! This is all I have of you:)")
             minion_movies = movies[movies['title'].str.lower().str.contains('despicable me') | movies['title'].str.lower().str.contains('minions')]
-            minion_movies = minion_movies.merge(links, on='movieId')  # Merge with links DataFrame
+            minion_movies = minion_movies.merge(links, on='movieId') 
             if not minion_movies.empty:
                 display_posters(minion_movies)
             else:

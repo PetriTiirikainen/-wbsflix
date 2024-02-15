@@ -36,7 +36,9 @@ def recommend_movies(userId, ratings, movies, links, n=10):
     final_df = merged_df[['movieId', 'title', 'genres', 'estimated_rating', 'tmdbId']]
 
     # Define the genres to be included in the recommendations
-    genres = ['comedy', 'drama', 'thriller', 'sci-fi', 'children']
+    genres = ['Adventure' 'Animation' 'Children' 'Comedy' 'Fantasy' 'Romance' 'Drama'
+    'Action' 'Crime' 'Thriller' 'Horror' 'Mystery' 'Sci-Fi' 'War' 'Musical'
+    'Documentary' 'IMAX' 'Western' 'Film-Noir']
 
     # Filter the recommendations to include at least one movie from each genre
     genre_recommendations = []
@@ -78,3 +80,17 @@ def get_top_n(testset, user_id, n, algo, randomness=2):
 
     # Return the top n predictions
     return top_n_predictions_df.head(n)
+
+def recommend_movies_by_genre(genre, movies, links, n=1):
+    # Filter the movies DataFrame by the specified genre
+    genre_movies = movies[movies['genres'].str.lower().str.contains(genre.lower(), na=False)]
+    
+    # If there are no movies of the specified genre, return an empty DataFrame
+    if genre_movies.empty:
+        return pd.DataFrame(columns=movies.columns)
+    
+    # Merge with links DataFrame
+    genre_movies = genre_movies.merge(links, on='movieId')
+    
+    # Return a random sample of movies from the specified genre
+    return genre_movies.sample(n)

@@ -44,7 +44,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 # User inputs
 movie_name = st.text_input('Search for a movie', help='Type in a movie title or a part of a movie title', key='movie_name')
-user_id = st.text_input('Enter your user ID please', help='Type in a User Id number between 1 and 610' '42', key='user_id')
+user_id = st.text_input('Enter your user ID please', '42', help='Type in a User Id number between 1 and 610',  key='user_id')
 user_id = int(user_id)  # Convert the user ID to an integer
 top_n = 15  # Define the number of recommendations to display
 

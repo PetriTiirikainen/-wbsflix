@@ -51,10 +51,10 @@ top_n = 15  # Define the number of recommendations to display
 st.header("Movie Recommendation Chatbot")
 
 # Chatbot's greeting message
-st.write("Hello, how can I help you today? Try entering a movie or a genre you liked or your user ID.")
+st.write("Hello, how can I help you today? Try entering a movie or a genre you liked or just type in the word recommend.")
 
 # Use st.text_input for chatbot input
-chatbot_input = st.text_input('Chatbot Input', help='You can type in a User Id number between 1 and 610, a movie title or a movie genre to get a recommendation', key='chatbot_input')
+chatbot_input = st.text_input('Chatbot Input', help='You can type in the word recommend, a movie title or a movie genre to get a recommendation', key='chatbot_input')
 
 # Define the variable "genre" before using it
 genre = None  
@@ -69,13 +69,14 @@ if chatbot_input:
                 display_posters(minion_movies)
             else:
                 st.write("Sorry, no Minions movies found.")
-    elif chatbot_input.isdigit():
-            # If the user input is a number, assume it's a user ID and recommend a movie
-            user_id = int(chatbot_input)
-            recommendations = recommend_movies(user_id, ratings, movies, links, 1)
-            # Use st.write for chatbot output
-            st.write(f"I recommend the movie: {recommendations['title'].values[0]}")
-            display_posters(recommendations)
+    elif chatbot_input.lower() == "recommend":
+        # If the user input is "recommend", recommend a movie for the user ID
+        recommendations = recommend_movies(user_id, ratings, movies, links, top_n)  # Get top_n recommendations
+        # Select a random movie from the recommendations
+        random_recommendation = recommendations.sample(1)
+        # Use st.write for chatbot output
+        st.write(f"I recommend the movie: {random_recommendation['title'].values[0]}")
+        display_posters(random_recommendation)
     elif any(chatbot_input.lower() in genre.lower() for genre in ['Adventure', 'Animation', 'Children', 'Comedy', 'Fantasy', 'Romance', 'Drama',
     'Action', 'Crime', 'Thriller', 'Horror', 'Mystery', 'Sci-Fi', 'War', 'Musical',
     'Documentary', 'IMAX', 'Western', 'Film-Noir']):

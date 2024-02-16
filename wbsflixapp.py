@@ -7,6 +7,7 @@ from func_get_user_based_movies import recommend_movies_by_genre
 from tmdb_api import get_poster_url
 from user_input import user_input_features
 from displayposters import display_posters
+from fuzzywuzzy import process
 import os
 import random
 
@@ -42,9 +43,8 @@ st.markdown("<br>", unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
-# User inputs
-movie_name = st.text_input('Search for a movie', help='Type in a movie title or a part of a movie title', key='movie_name')
-user_id = st.text_input('Enter your user ID please', '42', help='Type in a User Id number between 1 and 610',  key='user_id')
+
+user_id = st.text_input('Enter your user ID please', '42', help='Type in a User Id number between 1 and 610', key='user_id')
 user_id = int(user_id)  # Convert the user ID to an integer
 top_n = 15  # Define the number of recommendations to display
 
@@ -55,17 +55,17 @@ st.header("Movie Recommendation Chatbot")
 st.write("Hello, how can I help you today? Try entering a movie or a genre you liked or your user ID.")
 
 # Use st.text_input for chatbot input
-chatbot_input = st.text_input('Chatbot Input', help='You can type in a User Id number between 1 and 610, a movie title or a movie genre like action, sci-fi, thriller, to get a recommendation', key='chatbot_input')
+chatbot_input = st.text_input('Chatbot Input', help='You can type in a User Id number between 1 and 610, a movie title or a movie genre to get a recommendation', key='chatbot_input')
 
 # Define the variable "genre" before using it
 genre = None  
 
 if chatbot_input:
     if chatbot_input.lower() == "banana!":
-            # Easter egg for 'banana!' input
+            # Easter egg for 'banana!'
             st.write("Maxguv minion! Aca nama tadda ka kaylay cama to: (Translation: Welcome minion! This is all I have of you:)")
             minion_movies = movies[movies['title'].str.lower().str.contains('despicable me') | movies['title'].str.lower().str.contains('minions')]
-            minion_movies = minion_movies.merge(links, on='movieId') 
+            minion_movies = minion_movies.merge(links, on='movieId')  # Merge with links DataFrame
             if not minion_movies.empty:
                 display_posters(minion_movies)
             else:
@@ -97,42 +97,50 @@ if chatbot_input:
 else:
     st.write("Sorry, I didn't understand that. Please try again.")
 
-# Merge the 'movies' and 'links' DataFrames on 'movieId'
-movies_with_links = movies.merge(links, on='movieId')
-
-# Filter the merged DataFrame for titles that contain the user input
-search_results = movies_with_links[movies_with_links['title'].str.lower().str.contains(movie_name.lower())]
-
-# If the user inputs something in the search field, filter the merged DataFrame for titles that contain the user input and display the results
-if movie_name:
-        search_results = movies_with_links[movies_with_links['title'].str.lower().str.contains(movie_name.lower())]
-
-        # Check if any movies were found
-        if search_results.empty:
-            st.write("No movies found.")
-        else:
-            # Display the search results
-            st.subheader(f"Search results for '{movie_name}':")
-            display_posters(search_results)
-
 # Display top n movies
 st.subheader("Our customers' favourites")
 top_movies = top_n_movies(top_n, movies, ratings, links)  # Add links as an argument
 display_posters(top_movies)
 
-# Filter the ratings DataFrame for rows where the userId is the specified user and the rating is 4 or 5
-high_rated_movies = ratings[(ratings['userId'] == user_id) & (ratings['rating'] >= 4)]
+st.markdown("<br>", unsafe_allow_html=True)
 
-# Randomly select one of these high-rated movies
-random_high_rated_movie = high_rated_movies.sample(1)
+# Merge the 'movies' and 'links' DataFrames on 'movieId'
+movies_with_links = movies.merge(links, on='movieId')
 
-# Get the title of the randomly selected high-rated movie from the movies DataFrame
-random_high_rated_movie_title = movies[movies['movieId'] == random_high_rated_movie['movieId'].values[0]]['title'].values[0]
+movie_name = st.text_input('Search for a movie', help='Type in a movie title or a part of a movie title', key='movie_name')
+
+# If the user inputs something in the search field, filter the merged DataFrame for titles that contain the user input and display the results
+if movie_name:
+    search_results = movies_with_links[movies_with_links['title'].str.lower().str.contains(movie_name.lower())]
+
+    # Check if any movies were found
+    if search_results.empty:
+        st.write("No movies found.")
+    else:
+        # Display the search results
+        st.subheader(f"Search results for '{movie_name}':")
+        display_posters(search_results)
+
+        # Use the first result from the search results as the input for the item-based recommendations
+        movie_title_for_recommendations = search_results.iloc[0]['title']
+else:
+    # Filter the ratings DataFrame for rows where the userId is the specified user and the rating is 4 or 5
+    high_rated_movies = ratings[(ratings['userId'] == user_id) & (ratings['rating'] >= 4)]
+
+    # Randomly select one of these high-rated movies
+    random_high_rated_movie = high_rated_movies.sample(1)
+
+    # Get the title of the randomly selected high-rated movie from the movies DataFrame
+    movie_title_for_recommendations = movies[movies['movieId'] == random_high_rated_movie['movieId'].values[0]]['title'].values[0]
+
+st.markdown("<br>", unsafe_allow_html=True)
 
 # Display item-based recommendations
-st.subheader(f"Because you liked '{random_high_rated_movie_title}', you might also like...")
-item_recommendations = get_movie_recommendations(random_high_rated_movie_title, top_n, movies, links)  # Add links as an argument
+st.subheader(f"Because you liked '{movie_title_for_recommendations}', you might also like...")
+item_recommendations = get_movie_recommendations(movie_title_for_recommendations, top_n, movies, links)  # Add links as an argument
 display_posters(item_recommendations)
+
+st.markdown("<br>", unsafe_allow_html=True)
 
 # Display user-based recommendations
 st.subheader('Specially for you')

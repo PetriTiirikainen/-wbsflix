@@ -108,6 +108,9 @@ movies_with_links = movies.merge(links, on='movieId')
 
 movie_name = st.text_input('Search for a movie', help='Type in a movie title or a part of a movie title', key='movie_name')
 
+# Initialize a flag to track whether the movie title was obtained from the search bar
+from_search_bar = False
+
 # If the user inputs something in the search field, filter the merged DataFrame for titles that contain the user input and display the results
 if movie_name:
     search_results = movies_with_links[movies_with_links['title'].str.lower().str.contains(movie_name.lower())]
@@ -122,6 +125,9 @@ if movie_name:
 
         # Use the first result from the search results as the input for the item-based recommendations
         movie_title_for_recommendations = search_results.iloc[0]['title']
+
+        # Set the flag to True since the movie title was obtained from the search bar
+        from_search_bar = True
 else:
     # Filter the ratings DataFrame for rows where the userId is the specified user and the rating is 4 or 5
     high_rated_movies = ratings[(ratings['userId'] == user_id) & (ratings['rating'] >= 4)]
@@ -135,7 +141,10 @@ else:
 st.markdown("<br>", unsafe_allow_html=True)
 
 # Display item-based recommendations
-st.subheader(f"Because you liked '{movie_title_for_recommendations}', you might also like...")
+if from_search_bar:
+    st.subheader(f"Because you searched for '{movie_title_for_recommendations}', you might also like...")
+else:
+    st.subheader(f"Because you liked '{movie_title_for_recommendations}', you might also like...")
 item_recommendations = get_movie_recommendations(movie_title_for_recommendations, top_n, movies, links)  # Add links as an argument
 display_posters(item_recommendations)
 

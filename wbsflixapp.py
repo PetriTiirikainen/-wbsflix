@@ -7,7 +7,6 @@ from func_get_user_based_movies import recommend_movies_by_genre
 from tmdb_api import get_poster_url
 from user_input import user_input_features
 from displayposters import display_posters
-from fuzzywuzzy import process
 import os
 import random
 
